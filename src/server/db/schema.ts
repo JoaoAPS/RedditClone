@@ -7,6 +7,7 @@ import {
   primaryKey,
   text,
   timestamp,
+  unique,
   varchar,
 } from "drizzle-orm/mysql-core"
 import { type AdapterAccount } from "next-auth/adapters"
@@ -28,6 +29,8 @@ export const users = mysqlTable("user", {
     fsp: 3,
   }).default(sql`CURRENT_TIMESTAMP(3)`),
   image: varchar("image", { length: 255 }),
+  createdAt: timestamp("created_At").defaultNow(),
+  updatedAt: timestamp("updatedAt").onUpdateNow(),
 })
 
 export const usersRelations = relations(users, ({ many }) => ({
@@ -52,14 +55,22 @@ export const accounts = mysqlTable(
     refresh_token: text("refresh_token"),
     access_token: text("access_token"),
     expires_at: int("expires_at"),
+    expires_in: int("expires_in"),
+    refresh_token_expires_in: int("refresh_token_expires_in"),
     token_type: varchar("token_type", { length: 255 }),
     scope: varchar("scope", { length: 255 }),
     id_token: text("id_token"),
     session_state: varchar("session_state", { length: 255 }),
+    createdAt: timestamp("created_At").defaultNow(),
+    updatedAt: timestamp("updatedAt").onUpdateNow(),
   },
   (account) => ({
     compoundKey: primaryKey(account.provider, account.providerAccountId),
     userIdIdx: index("userId_idx").on(account.userId),
+    providerAccountUnique: unique().on(
+      account.provider,
+      account.providerAccountId,
+    ),
   }),
 )
 
@@ -75,6 +86,8 @@ export const sessions = mysqlTable(
       .primaryKey(),
     userId: varchar("userId", { length: 255 }).notNull(),
     expires: timestamp("expires", { mode: "date" }).notNull(),
+    createdAt: timestamp("created_At").defaultNow(),
+    updatedAt: timestamp("updatedAt").onUpdateNow(),
   },
   (session) => ({
     userIdIdx: index("userId_idx").on(session.userId),
@@ -91,6 +104,8 @@ export const verificationTokens = mysqlTable(
     identifier: varchar("identifier", { length: 255 }).notNull(),
     token: varchar("token", { length: 255 }).notNull(),
     expires: timestamp("expires", { mode: "date" }).notNull(),
+    createdAt: timestamp("created_At").defaultNow(),
+    updatedAt: timestamp("updatedAt").onUpdateNow(),
   },
   (vt) => ({
     compoundKey: primaryKey(vt.identifier, vt.token),
