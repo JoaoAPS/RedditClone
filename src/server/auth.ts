@@ -49,9 +49,6 @@ export const authOptions: NextAuthOptions = {
   },
   // @ts-expect-error drizzle-adapter uses the DrizzleAdapter type from @auth and not @next-auth
   adapter: DrizzleAdapter(db, mysqlTable),
-  session: {
-    strategy: "jwt",
-  },
   providers: [
     CredentialsProvider({
       name: "credentials",
