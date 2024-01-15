@@ -2,6 +2,8 @@ import type { Metadata } from "next"
 
 import Nav from "~/components/nav"
 
+import "~/styles/globals.css"
+
 export const metadata: Metadata = {
   title: "Reddit Clone",
   description: "A toy project for me to practice Next.js",

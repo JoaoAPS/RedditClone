@@ -6,11 +6,13 @@ export default async function Home() {
 
   return (
     <main>
-      <h1>Hello World</h1>
+      <h1 className="text-green">Hello World</h1>
 
       <ul>
         {allUsers.map((user) => (
-          <li key={user.id}>{user.name}</li>
+          <li key={user.id} className="my-3">
+            {user.name}
+          </li>
         ))}
       </ul>
     </main>

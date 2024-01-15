@@ -161,7 +161,7 @@ export const comments = mysqlTable(
     id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
     postId: bigint("post_id", { mode: "number" }).notNull(),
     authorId: varchar("author_id", { length: 255 }).notNull(),
-    replyToId: bigint("reply_to_id", { mode: "number" }).notNull(),
+    replyToId: bigint("reply_to_id", { mode: "number" }),
     body: text("body"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").onUpdateNow(),
