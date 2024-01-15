@@ -5,7 +5,7 @@ export default async function Home() {
   const allUsers = await db.select().from(users)
 
   return (
-    <main>
+    <>
       <h1 className="text-green">Hello World</h1>
 
       <ul>
@@ -15,6 +15,6 @@ export default async function Home() {
           </li>
         ))}
       </ul>
-    </main>
+    </>
   )
 }

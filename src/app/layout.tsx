@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 
-import Nav from "~/components/nav"
+import LeftMenu from "~/components/left_menu"
+import RightMenu from "~/components/right_menu"
 
 import "~/styles/globals.css"
 
@@ -17,9 +18,11 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Nav />
-
-        {children}
+        <div className="grid grid-cols-4">
+          <LeftMenu />
+          <main className="col-span-2">{children}</main>
+          <RightMenu />
+        </div>
       </body>
     </html>
   )
