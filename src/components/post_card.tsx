@@ -1,16 +1,40 @@
-import type { posts } from "~/server/db/schema"
-
 import UpvoteDownvote from "./upvote_downvote"
 
-type Post = typeof posts.$inferSelect
+interface Post {
+  id: number
+  title: string
+  createdAt: Date
+  authorId: string
+  authorName: string | null
+  communityId: number
+  communityName: string | null
+}
 
 export default function PostCard({ post }: { post: Post }) {
   return (
-    <article key={post.id} className="grid w-full grid-cols-12 border p-2">
-      <div>
+    <article
+      key={post.id}
+      className="flex w-full gap-4 rounded-sm border px-4 py-2"
+    >
+      <div className="">
         <UpvoteDownvote />
       </div>
-      <div className="col-span-11">{post.title}</div>
+
+      <div className="flex-grow">
+        <div className="flex">
+          <span className="text-xs text-gray-700">
+            {post.communityName ?? "Unnamed Community"}
+          </span>
+          <span className="pl-3 text-xs text-muted-foreground">
+            Posted by <i>{post.authorName ?? "unnamed"}</i> at{" "}
+            {post.createdAt.toLocaleString()}
+          </span>
+        </div>
+
+        <div className="py-1">
+          <span className="text-lg">{post.title}</span>
+        </div>
+      </div>
     </article>
   )
 }

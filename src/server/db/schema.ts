@@ -114,7 +114,7 @@ export const verificationTokens = mysqlTable(
 
 export const communities = mysqlTable("community", {
   id: int("id").primaryKey().autoincrement(),
-  name: varchar("name", { length: 32 }),
+  name: varchar("name", { length: 32 }).notNull(),
   description: text("description"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").onUpdateNow(),
@@ -129,10 +129,10 @@ export const posts = mysqlTable(
   "post",
   {
     id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
-    title: varchar("title", { length: 512 }),
+    title: varchar("title", { length: 512 }).notNull(),
     body: text("body"),
     authorId: varchar("author_id", { length: 255 }).notNull(),
-    communityId: varchar("community_id", { length: 255 }).notNull(),
+    communityId: int("community_id").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updatedAt").onUpdateNow(),
   },
