@@ -1,3 +1,5 @@
+import SideMenu from "../side_menu"
+
 export default function LeftMenu() {
-  return <div id="left-menu">Left menu</div>
+  return <SideMenu>Left menu</SideMenu>
 }
