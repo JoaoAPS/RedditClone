@@ -91,6 +91,7 @@ export const communities = sqliteTable("community", {
     .$default(() => uuid()),
   name: text("name").notNull(),
   description: text("description"),
+  image: text("image"),
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .default(sql`(STRFTIME('%s', 'now') * 1000)`)
     .notNull(),

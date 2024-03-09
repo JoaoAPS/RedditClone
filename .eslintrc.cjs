@@ -31,7 +31,11 @@ const config = {
         checksVoidReturn: { attributes: false },
       },
     ],
+    "@typescript-eslint/prefer-nullish-coalescing": [
+      "warn",
+      { ignorePrimitives: { string: true } },
+    ],
   },
-};
+}
 
-module.exports = config;
+module.exports = config

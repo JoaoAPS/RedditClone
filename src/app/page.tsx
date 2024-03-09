@@ -18,29 +18,31 @@ export default async function Home() {
   const session = await getServerSession(authOptions)
   const user = session?.user
 
-  const userCommunitiesPosts = await db
-    .select({
-      id: posts.id,
-      title: posts.title,
-      createdAt: posts.createdAt,
-      authorId: posts.authorId,
-      authorName: users.name,
-      communityId: posts.communityId,
-      communityName: communities.name,
-    })
-    .from(posts)
-    .where(
-      inArray(
-        posts.communityId,
-        db
-          .select({ communityId: communitiesMembers.communityId })
-          .from(communitiesMembers)
-          .where(eq(communitiesMembers.userId, user!.id)),
-      ),
-    )
-    .leftJoin(users, eq(posts.authorId, users.id))
-    .leftJoin(communities, eq(posts.communityId, communities.id))
-    .limit(MAX_POSTS_PER_QUERY)
+  const userCommunitiesPosts = user
+    ? await db
+        .select({
+          id: posts.id,
+          title: posts.title,
+          createdAt: posts.createdAt,
+          authorId: posts.authorId,
+          authorName: users.name,
+          communityId: posts.communityId,
+          communityName: communities.name,
+        })
+        .from(posts)
+        .where(
+          inArray(
+            posts.communityId,
+            db
+              .select({ communityId: communitiesMembers.communityId })
+              .from(communitiesMembers)
+              .where(eq(communitiesMembers.userId, user.id)),
+          ),
+        )
+        .leftJoin(users, eq(posts.authorId, users.id))
+        .leftJoin(communities, eq(posts.communityId, communities.id))
+        .limit(MAX_POSTS_PER_QUERY)
+    : []
 
   const otherCommunitiesPosts =
     userCommunitiesPosts.length < MAX_POSTS_PER_QUERY

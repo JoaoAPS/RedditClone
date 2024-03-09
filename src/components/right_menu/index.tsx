@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { getServerSession } from "next-auth/next"
+import type { User } from "next-auth"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faSignIn, faSignOut } from "@fortawesome/free-solid-svg-icons"
 
@@ -26,16 +27,11 @@ function getNameAbbreviation(name: string) {
 
 export default async function RightMenu() {
   const session = await getServerSession(authOptions)
-  const name = session?.user?.name ?? ""
-  const imageSrc = session?.user?.image ?? ""
+  const user = session?.user
 
   return (
     <SideMenu>
-      {session ? (
-        <LoggedInContent name={name} imageSrc={imageSrc} />
-      ) : (
-        <LoggedOutContent />
-      )}
+      {user ? <LoggedInContent user={user} /> : <LoggedOutContent />}
     </SideMenu>
   )
 }
@@ -51,18 +47,15 @@ function LoggedOutContent() {
   )
 }
 
-function LoggedInContent({
-  name,
-  imageSrc,
-}: {
-  name: string
-  imageSrc: string
-}) {
+function LoggedInContent({ user }: { user: User }) {
+  const name = user.name ?? ""
+  const userImageSrc = user.image || "/default_user.webp"
+
   return (
     <>
       <div className="flex h-fit items-center gap-3">
         <Avatar>
-          <AvatarImage src={imageSrc} />
+          <AvatarImage src={userImageSrc} />
           <AvatarFallback>{getNameAbbreviation(name)}</AvatarFallback>
         </Avatar>
 
