@@ -1,12 +1,12 @@
 import UpvoteDownvote from "./upvote_downvote"
 
 interface Post {
-  id: number
+  id: string
   title: string
   createdAt: Date
   authorId: string
   authorName: string | null
-  communityId: number
+  communityId: string
   communityName: string | null
 }
 
