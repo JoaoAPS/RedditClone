@@ -14,7 +14,10 @@ export default function PostCard({ post }: { post: Post }) {
   return (
     <article
       key={post.id}
-      className="flex w-full gap-4 rounded-sm border px-4 py-2"
+      className={`
+        flex w-full gap-4 rounded-sm border px-4 py-2 transition-colors duration-200
+        ease-in-out focus-within:bg-slate-100 hover:bg-slate-100
+      `}
     >
       <div className="">
         <UpvoteDownvote />

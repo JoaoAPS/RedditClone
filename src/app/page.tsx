@@ -1,6 +1,5 @@
 import { getServerSession } from "next-auth/next"
 import { eq, inArray } from "drizzle-orm"
-
 import {
   posts,
   communitiesMembers,
@@ -10,6 +9,8 @@ import {
 import { db } from "~/server/db"
 import { authOptions } from "~/server/auth"
 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faSearch, faTimes } from "@fortawesome/free-solid-svg-icons"
 import PostCard from "~/components/post_card"
 
 const MAX_POSTS_PER_QUERY = 20
@@ -65,10 +66,29 @@ export default async function Home() {
   const postsToShow = userCommunitiesPosts.concat(otherCommunitiesPosts)
 
   return (
-    <div id="posts-container" className="flex flex-col gap-4">
-      {postsToShow.map((post) => (
-        <PostCard key={post.id} post={post} />
-      ))}
-    </div>
+    <>
+      <div className="flex w-full items-center rounded-md border border-gray-300 bg-slate-100 px-3 py-2 focus-within:bg-slate-50">
+        <label htmlFor="search" hidden>
+          Search
+        </label>
+
+        <FontAwesomeIcon icon={faSearch} className="pr-2 text-gray-500" />
+        <input
+          id="search"
+          type="search"
+          placeholder="Search"
+          className="flex-grow bg-slate-100 outline-none focus-within:bg-slate-50"
+        />
+        <FontAwesomeIcon icon={faTimes} className="pl-2 text-gray-500" />
+      </div>
+
+      <div className="pt-4"></div>
+
+      <div id="posts-container" className="flex flex-col gap-4">
+        {postsToShow.map((post) => (
+          <PostCard key={post.id} post={post} />
+        ))}
+      </div>
+    </>
   )
 }
