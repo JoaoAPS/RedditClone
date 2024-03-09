@@ -1,5 +1,7 @@
 import Link from "next/link"
 import { getServerSession } from "next-auth/next"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faSignIn, faSignOut } from "@fortawesome/free-solid-svg-icons"
 
 import { authOptions } from "~/server/auth"
 
@@ -24,22 +26,40 @@ function getNameAbbreviation(name: string) {
 
 export default async function RightMenu() {
   const session = await getServerSession(authOptions)
-
-  if (session === null) {
-    return (
-      <div className="p-3">
-        <Button asChild className="w-full">
-          <Link href="/api/auth/signin">Sign in</Link>
-        </Button>
-      </div>
-    )
-  }
-
   const name = session?.user?.name ?? ""
   const imageSrc = session?.user?.image ?? ""
 
   return (
     <SideMenu>
+      {session ? (
+        <LoggedInContent name={name} imageSrc={imageSrc} />
+      ) : (
+        <LoggedOutContent />
+      )}
+    </SideMenu>
+  )
+}
+
+function LoggedOutContent() {
+  return (
+    <Button asChild className="w-full bg-accent hover:bg-accent/80">
+      <Link href="/api/auth/signin">
+        <FontAwesomeIcon icon={faSignIn} className="pr-2" />
+        Sign in
+      </Link>
+    </Button>
+  )
+}
+
+function LoggedInContent({
+  name,
+  imageSrc,
+}: {
+  name: string
+  imageSrc: string
+}) {
+  return (
+    <>
       <div className="flex h-fit items-center gap-3">
         <Avatar>
           <AvatarImage src={imageSrc} />
@@ -54,7 +74,10 @@ export default async function RightMenu() {
             variant="outline"
             className="h-7 w-full border-slate-300 bg-transparent font-normal text-slate-800 hover:border-slate-900"
           >
-            <Link href="/api/auth/signout">Sign out</Link>
+            <Link href="/api/auth/signout">
+              <FontAwesomeIcon icon={faSignOut} className="pr-2" />
+              Sign out
+            </Link>
           </Button>
         </div>
       </div>
@@ -69,6 +92,6 @@ export default async function RightMenu() {
           <Link href="/community/new">Create Community</Link>
         </Button>
       </div>
-    </SideMenu>
+    </>
   )
 }

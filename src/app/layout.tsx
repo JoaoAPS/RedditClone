@@ -5,6 +5,7 @@ import RightMenu from "~/components/right_menu"
 import localFont from "next/font/local"
 
 import "~/styles/globals.css"
+import "@fortawesome/fontawesome-svg-core/styles.css"
 
 const madimi = localFont({
   src: "../assets/MadimiOne-Regular.ttf",
