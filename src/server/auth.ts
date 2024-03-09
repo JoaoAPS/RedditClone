@@ -10,7 +10,6 @@ import {
 import GitHubProvider from "next-auth/providers/github"
 
 import { db } from "~/server/db"
-import { mysqlTable } from "~/server/db/schema"
 import { env } from "~/env"
 
 /**
@@ -52,7 +51,7 @@ export const authOptions: NextAuthOptions = {
     },
   },
   // @ts-expect-error drizzle-adapter uses the DrizzleAdapter type from @auth and not @next-auth
-  adapter: DrizzleAdapter(db, mysqlTable),
+  adapter: DrizzleAdapter(db),
   // session: {
   //   strategy: "jwt",
   // },

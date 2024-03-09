@@ -1,36 +1,26 @@
 import { relations, sql } from "drizzle-orm"
 import {
-  bigint,
-  index,
-  int,
-  mysqlTableCreator,
-  primaryKey,
   text,
-  timestamp,
-  unique,
-  varchar,
-} from "drizzle-orm/mysql-core"
+  integer,
+  sqliteTable,
+  primaryKey,
+  index,
+} from "drizzle-orm/sqlite-core"
 import { type AdapterAccount } from "next-auth/adapters"
+import { v4 as uuid } from "uuid"
 
-/**
- * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
- * database instance for multiple projects.
- *
- * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
- */
-export const mysqlTable = mysqlTableCreator((name) => `reddit-clone_${name}`)
-
-export const users = mysqlTable("user", {
-  id: varchar("id", { length: 255 }).notNull().primaryKey(),
-  name: varchar("name", { length: 255 }),
-  email: varchar("email", { length: 255 }).notNull(),
-  emailVerified: timestamp("emailVerified", {
-    mode: "date",
-    fsp: 3,
-  }).default(sql`CURRENT_TIMESTAMP(3)`),
-  image: varchar("image", { length: 255 }),
-  createdAt: timestamp("created_At").defaultNow(),
-  updatedAt: timestamp("updatedAt").onUpdateNow(),
+export const users = sqliteTable("user", {
+  id: text("id")
+    .notNull()
+    .primaryKey()
+    .$default(() => uuid()),
+  name: text("name"),
+  email: text("email").notNull(),
+  emailVerified: integer("emailVerified", { mode: "timestamp_ms" }),
+  image: text("image"),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).default(
+    sql`(STRFTIME('%s', 'now') * 1000)`,
+  ),
 })
 
 export const usersRelations = relations(users, ({ many }) => ({
@@ -43,34 +33,27 @@ export const usersRelations = relations(users, ({ many }) => ({
   postsDownvotes: many(postsDownvotes),
 }))
 
-export const accounts = mysqlTable(
+export const accounts = sqliteTable(
   "account",
   {
-    userId: varchar("userId", { length: 255 }).notNull(),
-    type: varchar("type", { length: 255 })
-      .$type<AdapterAccount["type"]>()
-      .notNull(),
-    provider: varchar("provider", { length: 255 }).notNull(),
-    providerAccountId: varchar("providerAccountId", { length: 255 }).notNull(),
+    userId: text("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    type: text("type").$type<AdapterAccount["type"]>().notNull(),
+    provider: text("provider").notNull(),
+    providerAccountId: text("providerAccountId").notNull(),
     refresh_token: text("refresh_token"),
     access_token: text("access_token"),
-    expires_at: int("expires_at"),
-    expires_in: int("expires_in"),
-    refresh_token_expires_in: int("refresh_token_expires_in"),
-    token_type: varchar("token_type", { length: 255 }),
-    scope: varchar("scope", { length: 255 }),
+    expires_at: integer("expires_at"),
+    token_type: text("token_type"),
+    scope: text("scope"),
     id_token: text("id_token"),
-    session_state: varchar("session_state", { length: 255 }),
-    createdAt: timestamp("created_At").defaultNow(),
-    updatedAt: timestamp("updatedAt").onUpdateNow(),
+    session_state: text("session_state"),
   },
   (account) => ({
-    compoundKey: primaryKey(account.provider, account.providerAccountId),
-    userIdIdx: index("userId_idx").on(account.userId),
-    providerAccountUnique: unique().on(
-      account.provider,
-      account.providerAccountId,
-    ),
+    compoundKey: primaryKey({
+      columns: [account.provider, account.providerAccountId],
+    }),
   }),
 )
 
@@ -78,46 +61,39 @@ export const accountsRelations = relations(accounts, ({ one }) => ({
   user: one(users, { fields: [accounts.userId], references: [users.id] }),
 }))
 
-export const sessions = mysqlTable(
-  "session",
-  {
-    sessionToken: varchar("sessionToken", { length: 255 })
-      .notNull()
-      .primaryKey(),
-    userId: varchar("userId", { length: 255 }).notNull(),
-    expires: timestamp("expires", { mode: "date" }).notNull(),
-    createdAt: timestamp("created_At").defaultNow(),
-    updatedAt: timestamp("updatedAt").onUpdateNow(),
-  },
-  (session) => ({
-    userIdIdx: index("userId_idx").on(session.userId),
-  }),
-)
+export const sessions = sqliteTable("session", {
+  sessionToken: text("sessionToken").notNull().primaryKey(),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  expires: integer("expires", { mode: "timestamp_ms" }).notNull(),
+})
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
   user: one(users, { fields: [sessions.userId], references: [users.id] }),
 }))
 
-export const verificationTokens = mysqlTable(
+export const verificationTokens = sqliteTable(
   "verificationToken",
   {
-    identifier: varchar("identifier", { length: 255 }).notNull(),
-    token: varchar("token", { length: 255 }).notNull(),
-    expires: timestamp("expires", { mode: "date" }).notNull(),
-    createdAt: timestamp("created_At").defaultNow(),
-    updatedAt: timestamp("updatedAt").onUpdateNow(),
+    identifier: text("identifier").notNull(),
+    token: text("token").notNull(),
+    expires: integer("expires", { mode: "timestamp_ms" }).notNull(),
   },
   (vt) => ({
-    compoundKey: primaryKey(vt.identifier, vt.token),
+    compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
   }),
 )
 
-export const communities = mysqlTable("community", {
-  id: int("id").primaryKey().autoincrement(),
-  name: varchar("name", { length: 32 }).notNull(),
+export const communities = sqliteTable("community", {
+  id: text("id")
+    .primaryKey()
+    .$default(() => uuid()),
+  name: text("name").notNull(),
   description: text("description"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").onUpdateNow(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .default(sql`(STRFTIME('%s', 'now') * 1000)`)
+    .notNull(),
 })
 
 export const communitiesRelations = relations(communities, ({ many }) => ({
@@ -125,21 +101,24 @@ export const communitiesRelations = relations(communities, ({ many }) => ({
   posts: many(posts),
 }))
 
-export const posts = mysqlTable(
+export const posts = sqliteTable(
   "post",
   {
-    id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
-    title: varchar("title", { length: 512 }).notNull(),
+    id: text("id")
+      .primaryKey()
+      .$default(() => uuid()),
+    title: text("title").notNull(),
     body: text("body"),
-    authorId: varchar("author_id", { length: 255 }).notNull(),
-    communityId: int("community_id").notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updatedAt").onUpdateNow(),
+    authorId: text("author_id").notNull(),
+    communityId: text("community_id").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .default(sql`(STRFTIME('%s', 'now') * 1000)`)
+      .notNull(),
   },
   (table) => {
     return {
-      communityIdIdx: index("author_id_idx").on(table.communityId),
-      authorIdIdx: index("community_id_idx").on(table.authorId),
+      communityIdIdx: index("post__author_id_idx").on(table.communityId),
+      authorIdIdx: index("post__community_id_idx").on(table.authorId),
     }
   },
 )
@@ -155,21 +134,24 @@ export const postsRelations = relations(posts, ({ one, many }) => ({
   downvotes: many(postsDownvotes),
 }))
 
-export const comments = mysqlTable(
+export const comments = sqliteTable(
   "comment",
   {
-    id: bigint("id", { mode: "number" }).primaryKey().autoincrement(),
-    postId: bigint("post_id", { mode: "number" }).notNull(),
-    authorId: varchar("author_id", { length: 255 }).notNull(),
-    replyToId: bigint("reply_to_id", { mode: "number" }),
+    id: text("id")
+      .primaryKey()
+      .$default(() => uuid()),
+    postId: text("post_id").notNull(),
+    authorId: text("author_id").notNull(),
+    replyToId: text("reply_to_id"),
     body: text("body"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").onUpdateNow(),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .default(sql`(STRFTIME('%s', 'now') * 1000)`)
+      .notNull(),
   },
   (table) => {
     return {
-      postIdIdx: index("post_id_idx").on(table.postId),
-      authorIdIdx: index("author_id_idx").on(table.authorId),
+      postIdIdx: index("comment__post_id_idx").on(table.postId),
+      authorIdIdx: index("comment__author_id_idx").on(table.authorId),
     }
   },
 )
@@ -187,17 +169,19 @@ export const commentsRelations = relations(comments, ({ one, many }) => ({
   downvotes: many(commentsDownvotes),
 }))
 
-export const communitiesMembers = mysqlTable(
+export const communitiesMembers = sqliteTable(
   "community_member",
   {
-    communityId: int("community_id").notNull(),
-    userId: varchar("user_id", { length: 255 }).notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    communityId: text("community_id").notNull(),
+    userId: text("user_id").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .default(sql`(STRFTIME('%s', 'now') * 1000)`)
+      .notNull(),
   },
   (table) => {
     return {
-      communityIdIdx: index("community_id_idx").on(table.communityId),
-      userIdIdx: index("user_id_idx").on(table.userId),
+      communityIdIdx: index("member__community_id_idx").on(table.communityId),
+      userIdIdx: index("member__user_id_idx").on(table.userId),
     }
   },
 )
@@ -216,17 +200,19 @@ export const communitiesMembersRelations = relations(
   }),
 )
 
-export const postsUpvotes = mysqlTable(
+export const postsUpvotes = sqliteTable(
   "post_upvote",
   {
-    postId: bigint("post_id", { mode: "number" }).notNull(),
-    userId: varchar("user_id", { length: 255 }).notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    postId: text("post_id").notNull(),
+    userId: text("user_id").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .default(sql`(STRFTIME('%s', 'now') * 1000)`)
+      .notNull(),
   },
   (table) => {
     return {
-      postIdIdx: index("post_id_idx").on(table.postId),
-      userIdIdx: index("user_id_idx").on(table.userId),
+      postIdIdx: index("post_upvote__post_id_idx").on(table.postId),
+      userIdIdx: index("post_upvote__user_id_idx").on(table.userId),
     }
   },
 )
@@ -242,17 +228,19 @@ export const postsUpvotesRelations = relations(postsUpvotes, ({ one }) => ({
   }),
 }))
 
-export const postsDownvotes = mysqlTable(
+export const postsDownvotes = sqliteTable(
   "post_downvote",
   {
-    postId: bigint("post_id", { mode: "number" }).notNull(),
-    userId: varchar("user_id", { length: 255 }).notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    postId: text("post_id").notNull(),
+    userId: text("user_id").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .default(sql`(STRFTIME('%s', 'now') * 1000)`)
+      .notNull(),
   },
   (table) => {
     return {
-      postIdIdx: index("post_id_idx").on(table.postId),
-      userIdIdx: index("user_id_idx").on(table.userId),
+      postIdIdx: index("post_downvote__post_id_idx").on(table.postId),
+      userIdIdx: index("post_downvote__user_id_idx").on(table.userId),
     }
   },
 )
@@ -268,17 +256,19 @@ export const postsDownvotesRelations = relations(postsDownvotes, ({ one }) => ({
   }),
 }))
 
-export const commentsUpvotes = mysqlTable(
+export const commentsUpvotes = sqliteTable(
   "comment_upvote",
   {
-    commentId: bigint("comment_id", { mode: "number" }).notNull(),
-    userId: varchar("user_id", { length: 255 }).notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    commentId: text("comment_id").notNull(),
+    userId: text("user_id").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .default(sql`(STRFTIME('%s', 'now') * 1000)`)
+      .notNull(),
   },
   (table) => {
     return {
-      commentIdIdx: index("comment_id_idx").on(table.commentId),
-      userIdIdx: index("user_id_idx").on(table.userId),
+      commentIdIdx: index("comment_upvote__comment_id_idx").on(table.commentId),
+      userIdIdx: index("comment_upvote__user_id_idx").on(table.userId),
     }
   },
 )
@@ -297,17 +287,21 @@ export const commentsUpvotesRelations = relations(
   }),
 )
 
-export const commentsDownvotes = mysqlTable(
+export const commentsDownvotes = sqliteTable(
   "comment_downvote",
   {
-    commentId: bigint("comment_id", { mode: "number" }).notNull(),
-    userId: varchar("user_id", { length: 255 }).notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    commentId: text("comment_id").notNull(),
+    userId: text("user_id").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .default(sql`(STRFTIME('%s', 'now') * 1000)`)
+      .notNull(),
   },
   (table) => {
     return {
-      commentIdIdx: index("comment_id_idx").on(table.commentId),
-      userIdIdx: index("user_id_idx").on(table.userId),
+      commentIdIdx: index("comment_downvote__comment_id_idx").on(
+        table.commentId,
+      ),
+      userIdIdx: index("comment_downvote__user_id_idx").on(table.userId),
     }
   },
 )
