@@ -79,10 +79,10 @@ function LoggedInContent({ user }: { user: User }) {
 
       <div className="flex flex-col gap-4">
         <Button asChild className="w-full bg-accent hover:bg-accent/80">
-          <Link href="/post/new">Create Post</Link>
+          <Link href="/post/new/">Create Post</Link>
         </Button>
         <Button asChild variant="outline" className="w-full">
-          <Link href="/community/new">Create Community</Link>
+          <Link href="/community/new/">Create Community</Link>
         </Button>
       </div>
     </>

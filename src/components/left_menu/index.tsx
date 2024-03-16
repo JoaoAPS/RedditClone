@@ -36,14 +36,18 @@ export default async function LeftMenu() {
   return (
     <SideMenu>
       <div className="flex items-center justify-center gap-4">
-        <Image
-          src="/logo.jpg"
-          width="100"
-          height="100"
-          alt="Site logo"
-          className="w-12 rounded-md"
-        />
-        <span className="font-logo text-lg font-normal">Reddit Clone</span>
+        <Link href="/">
+          <Image
+            src="/logo.jpg"
+            width="100"
+            height="100"
+            alt="Site logo"
+            className="w-12 rounded-md"
+          />
+        </Link>
+        <Link href="/">
+          <span className="font-logo text-lg font-normal">Reddit Clone</span>
+        </Link>
       </div>
 
       <Separator className="my-4" />
