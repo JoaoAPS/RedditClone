@@ -67,17 +67,16 @@ export default async function Home() {
 
   return (
     <>
-      <div className="flex w-full items-center rounded-md border border-gray-300 bg-slate-100 px-3 py-2 focus-within:bg-slate-50">
+      <div className="flex w-full items-center rounded-md border border-gray-300 bg-white px-3 py-2 focus-within:bg-slate-50">
         <label htmlFor="search" hidden>
           Search
         </label>
-
         <FontAwesomeIcon icon={faSearch} className="pr-2 text-gray-500" />
         <input
           id="search"
           type="search"
           placeholder="Search"
-          className="flex-grow bg-slate-100 outline-none focus-within:bg-slate-50"
+          className="flex-grow bg-white outline-none focus-within:bg-slate-50"
         />
         <FontAwesomeIcon icon={faTimes} className="pl-2 text-gray-500" />
       </div>
