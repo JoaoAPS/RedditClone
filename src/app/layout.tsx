@@ -30,7 +30,7 @@ export default async function RootLayout({
           className="grid min-h-dvh max-w-7xl flex-grow grid-cols-5 gap-3 py-3"
         >
           <LeftMenu />
-          <main className="col-span-3 min-h-full rounded-md bg-background px-6 py-6">
+          <main className="col-span-3 min-h-full rounded-md bg-background px-8 py-8">
             {children}
           </main>
           <RightMenu />
