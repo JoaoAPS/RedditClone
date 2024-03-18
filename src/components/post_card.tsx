@@ -1,3 +1,4 @@
+import Link from "next/link"
 import UpvoteDownvote from "./upvote_downvote"
 
 interface Post {
@@ -25,9 +26,12 @@ export default function PostCard({ post }: { post: Post }) {
 
       <div className="flex-grow">
         <div className="flex">
-          <span className="text-xs text-gray-700">
+          <Link
+            href={`/community/${post.communityId}`}
+            className="text-xs text-gray-700"
+          >
             {post.communityName ?? "Unnamed Community"}
-          </span>
+          </Link>
           <span className="pl-3 text-xs text-muted-foreground">
             Posted by <i>{post.authorName ?? "unnamed"}</i> at{" "}
             {post.createdAt.toLocaleString()}
@@ -35,7 +39,9 @@ export default function PostCard({ post }: { post: Post }) {
         </div>
 
         <div className="py-1">
-          <span className="text-lg">{post.title}</span>
+          <Link href={`/post/${post.id}`} className="text-lg">
+            {post.title}
+          </Link>
         </div>
       </div>
     </article>

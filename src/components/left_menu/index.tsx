@@ -59,7 +59,7 @@ export default async function LeftMenu() {
         {userCommunities.map((community) => (
           <li key={community.id} className="block">
             <Link
-              href={`/communities/${community.id}/`}
+              href={`/community/${community.id}/`}
               className="flex w-full items-center gap-2"
             >
               <Avatar className="inline-block h-5 w-5">
